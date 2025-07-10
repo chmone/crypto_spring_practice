@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cryptocurrency Analytics</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+      color: #ffffff;
+      line-height: 1.6;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .analytics-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #analyticsContent {
+      display: block;
+      width: 100%;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .back-button {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .back-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
+    }
+
+    .crypto-header {
+      text-align: center;
+      flex: 1;
+    }
+
+    .crypto-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #ffffff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .crypto-price {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #43e97b;
+      margin-bottom: 4px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .crypto-rank {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .chart-full-width {
+      width: 100%;
+      margin-bottom: 30px;
+      display: block;
+    }
+
+    .table-full-width {
+      width: 100%;
+      margin-bottom: 30px;
+      display: block;
+    }
+
+    .stats-card,
+    .performance-card,
+    .chart-card,
+    .table-container {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+      border-radius: 20px;
+      padding: 25px;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stats-card::before,
+    .performance-card::before,
+    .chart-card::before,
+    .table-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+    }
+
+    .chart-card {
+      height: 500px;
+      width: 100%;
+      display: block;
+      clear: both;
+    }
+
+    .table-container {
+      height: 500px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      clear: both;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .positive {
+      color: #43e97b;
+    }
+
+    .negative {
+      color: #f5576c;
+    }
+
+    .neutral {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .table-header {
+      padding: 0 0 20px 0;
+    }
+
+    .table-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: auto;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .historical-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .historical-table th {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      color: #ffffff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .historical-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    .historical-table tr:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: rgba(255, 255, 255, 0.7);
+      background: rgba(103, 126, 234, 0.1);
+      border: 2px solid rgba(103, 126, 234, 0.3);
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      font-size: 1.2rem;
+    }
+
+    .error {
+      background: rgba(245, 87, 108, 0.1);
+      border: 2px solid rgba(245, 87, 108, 0.3);
+      color: #f5576c;
+      padding: 16px;
+      border-radius: 15px;
+      margin: 20px 0;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .chart-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .chart-type-selector {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chart-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.8);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .chart-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .chart-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: rgba(102, 126, 234, 0.5);
+      color: white;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .timeframe-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .timeframe-selector label {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .timeframe-selector select {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .timeframe-selector select:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .timeframe-selector select option {
+      background: #2d2d44;
+      color: white;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 380px;
+      margin-top: 10px;
+    }
+
+    /* Custom scrollbar for dark theme */
+    .table-scroll::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .table-scroll::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .crypto-title {
+        font-size: 2rem;
+      }
+
+      .crypto-price {
+        font-size: 1.5rem;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .chart-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+      }
+
+      .chart-controls {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .chart-type-selector {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .chart-btn {
+        flex: 1;
+        min-width: 80px;
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+
+      .timeframe-selector {
+        justify-content: center;
+      }
+
+      .timeframe-selector select {
+        flex: 1;
+        max-width: 200px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="analytics-container">
+    <div class="header">
+      <a href="index.html" class="back-button">
+        ← Back to Dashboard
+      </a>
+
+      <div class="crypto-header" id="cryptoHeader">
+        <div class="loading">Loading cryptocurrency data...</div>
+      </div>
+
+      <div></div> <!-- Spacer for flexbox -->
+    </div>
+
+    <div id="analyticsContent" class="loading">
+      Loading analytics...
+    </div>
+  </div>
+
+  <script>
+    class CryptoAnalytics {
+      constructor() {
+        this.symbol = this.getSymbolFromUrl();
+        this.chart = null;
+        this.currentChartType = 'price';
+        this.currentTimeframe = '1hour';
+        this.analyticsData = null;
+        this.init();
+      }
+
+      getSymbolFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('symbol') || 'BTC';
+      }
+
+      async init() {
+        if (!this.symbol) {
+          this.showError('No cryptocurrency symbol provided');
+          return;
+        }
+
+        try {
+          await this.loadAnalytics();
+        } catch (error) {
+          console.error('Error loading analytics:', error);
+          this.showError('Failed to load analytics data');
+        }
+      }
+
+      async loadAnalytics() {
+        try {
+          console.log(`🔍 Loading analytics for ${this.symbol}`);
+          const response = await fetch(`/api/crypto/analytics/${this.symbol}`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          console.log('📊 Analytics data received:', data);
+
+          if (data.error) {
+            this.showError(data.error);
+            return;
+          }
+
+          this.renderAnalytics(data);
+        } catch (error) {
+          console.error('Error fetching analytics:', error);
+          this.showError(`Failed to load analytics: ${error.message}`);
+        }
+      }
+
+      renderAnalytics(data) {
+        this.analyticsData = data;
+        this.renderHeader(data);
+        this.renderContent(data);
+        this.setupEventListeners();
+      }
+
+      renderHeader(data) {
+        const header = document.getElementById('cryptoHeader');
+        header.innerHTML = `
+                    <div class="crypto-title">${data.name} (${data.symbol})</div>
+                    <div class="crypto-price">$${this.formatNumber(data.currentPrice)}</div>
+                    <div class="crypto-rank">Rank #${data.cmcRank || 'N/A'}</div>
+                `;
+      }
+
+      renderContent(data) {
+        const content = document.getElementById('analyticsContent');
+        content.innerHTML = `
+                    <div class="stats-grid">
+                        ${this.renderStatisticsCard(data.statistics)}
+                        ${this.renderPerformanceCard(data.performance)}
+                    </div>
+                    <div class="chart-full-width">
+                        ${this.renderChartCard(data)}
+                    </div>
+                    <div class="table-full-width">
+                        ${this.renderHistoricalTable(data.tableData)}
+                    </div>
+                `;
+
+        // Initialize the chart after DOM is updated
+        setTimeout(() => this.initChart(), 100);
+      }
+
+      renderStatisticsCard(stats) {
+        return `
+                    <div class="stats-card">
+                        <div class="card-title">📊 Price Statistics</div>
+                        <div class="stat-item">
+                            <span class="stat-label">Minimum Price</span>
+                            <span class="stat-value">$${this.formatNumber(stats.min)}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Maximum Price</span>
+                            <span class="stat-value">$${this.formatNumber(stats.max)}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Average Price</span>
+                            <span class="stat-value">$${this.formatNumber(stats.average)}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Price Range</span>
+                            <span class="stat-value">$${this.formatNumber(stats.priceRange)}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Standard Deviation</span>
+                            <span class="stat-value">$${this.formatNumber(stats.standardDeviation)}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Volatility</span>
+                            <span class="stat-value">${this.formatNumber(stats.coefficientOfVariation)}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Data Points</span>
+                            <span class="stat-value">${stats.dataPoints}</span>
+                        </div>
+                    </div>
+                `;
+      }
+
+      renderPerformanceCard(performance) {
+        const getChangeClass = (value) => {
+          if (value > 0) return 'positive';
+          if (value < 0) return 'negative';
+          return 'neutral';
+        };
+
+        return `
+                    <div class="performance-card">
+                        <div class="card-title">📈 Performance Metrics</div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Change</span>
+                            <span class="stat-value ${getChangeClass(performance.totalChange)}">
+                                $${this.formatNumber(performance.totalChange)}
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Change %</span>
+                            <span class="stat-value ${getChangeClass(performance.totalChangePercent)}">
+                                ${this.formatNumber(performance.totalChangePercent)}%
+                            </span>
+                        </div>
+                        ${performance.change1h !== undefined ? `
+                            <div class="stat-item">
+                                <span class="stat-label">1 Hour Change</span>
+                                <span class="stat-value ${getChangeClass(performance.change1h)}">
+                                    ${this.formatNumber(performance.change1h)}%
+                                </span>
+                            </div>
+                        ` : ''}
+                        ${performance.change24h !== undefined ? `
+                            <div class="stat-item">
+                                <span class="stat-label">24 Hour Change</span>
+                                <span class="stat-value ${getChangeClass(performance.change24h)}">
+                                    ${this.formatNumber(performance.change24h)}%
+                                </span>
+                            </div>
+                        ` : ''}
+                        ${performance.change7d !== undefined ? `
+                            <div class="stat-item">
+                                <span class="stat-label">7 Day Change</span>
+                                <span class="stat-value ${getChangeClass(performance.change7d)}">
+                                    ${this.formatNumber(performance.change7d)}%
+                                </span>
+                            </div>
+                        ` : ''}
+                        <div class="stat-item">
+                            <span class="stat-label">Tracking Period</span>
+                            <span class="stat-value neutral">${performance.timespan}</span>
+                        </div>
+                    </div>
+                `;
+      }
+
+      renderChartCard(data) {
+        return `
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="card-title">📊 Interactive Charts</div>
+                            <div class="chart-controls">
+                                <div class="chart-type-selector">
+                                    <button class="chart-btn active" data-chart="price">💰 Price</button>
+                                    <button class="chart-btn" data-chart="volatility">📈 Volatility</button>
+                                    <button class="chart-btn" data-chart="change">📊 % Change</button>
+                                </div>
+                                <div class="timeframe-selector">
+                                    <label>Time Frame:</label>
+                                    <select id="timeframeSelect">
+                                        <option value="10min">10 Minutes</option>
+                                        <option value="1hour" selected>1 Hour</option>
+                                        <option value="1day">1 Day</option>
+                                        <option value="1week">1 Week</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="analyticsChart"></canvas>
+                        </div>
+                    </div>
+                `;
+      }
+
+      renderHistoricalTable(tableData) {
+        if (!tableData || tableData.length === 0) {
+          return `
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div class="card-title">📋 Historical Data</div>
+                            </div>
+                            <div class="loading">No historical data available</div>
+                        </div>
+                    `;
+        }
+
+        const rows = tableData.map(row => `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td>$${this.formatNumber(row.price)}</td>
+                        <td>$${this.formatLargeNumber(row.marketCap)}</td>
+                        <td>$${this.formatLargeNumber(row.volume24h)}</td>
+                        <td class="${row.percentChange1h > 0 ? 'positive' : row.percentChange1h < 0 ? 'negative' : 'neutral'}">
+                            ${this.formatNumber(row.percentChange1h)}%
+                        </td>
+                        <td class="${row.percentChange24h > 0 ? 'positive' : row.percentChange24h < 0 ? 'negative' : 'neutral'}">
+                            ${this.formatNumber(row.percentChange24h)}%
+                        </td>
+                        <td class="${row.percentChange7d > 0 ? 'positive' : row.percentChange7d < 0 ? 'negative' : 'neutral'}">
+                            ${this.formatNumber(row.percentChange7d)}%
+                        </td>
+                        <td>${new Date(row.timestamp).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+
+        return `
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="card-title">📋 Historical Data (${tableData.length} records)</div>
+                        </div>
+                        <div class="table-scroll">
+                            <table class="historical-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Price</th>
+                                        <th>Market Cap</th>
+                                        <th>Volume 24h</th>
+                                        <th>1h %</th>
+                                        <th>24h %</th>
+                                        <th>7d %</th>
+                                        <th>Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rows}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+      }
+
+      setupEventListeners() {
+        // Chart type selector buttons
+        document.querySelectorAll('.chart-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            // Update active state
+            document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+
+            // Update chart type and redraw
+            this.currentChartType = e.target.dataset.chart;
+            this.updateChart();
+          });
+        });
+
+        // Timeframe selector
+        const timeframeSelect = document.getElementById('timeframeSelect');
+        if (timeframeSelect) {
+          timeframeSelect.addEventListener('change', (e) => {
+            this.currentTimeframe = e.target.value;
+            this.updateChart();
+          });
+        }
+      }
+
+      initChart() {
+        const ctx = document.getElementById('analyticsChart');
+        if (!ctx || !this.analyticsData) return;
+
+        if (this.chart) {
+          this.chart.destroy();
+        }
+
+        this.updateChart();
+      }
+
+      updateChart() {
+        const ctx = document.getElementById('analyticsChart');
+        if (!ctx || !this.analyticsData) return;
+
+        if (this.chart) {
+          this.chart.destroy();
+        }
+
+        let chartConfig;
+        switch (this.currentChartType) {
+          case 'volatility':
+            chartConfig = this.createVolatilityChart();
+            break;
+          case 'change':
+            chartConfig = this.createChangeChart();
+            break;
+          default:
+            chartConfig = this.createPriceChart();
+        }
+
+        this.chart = new Chart(ctx, chartConfig);
+      }
+
+      createPriceChart() {
+        const chartData = this.getAggregatedData(this.analyticsData.chartData);
+        const labels = chartData.map(item => this.formatTimestamp(item.timestamp));
+        const prices = chartData.map(item => item.price);
+
+        return {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Price (USD)',
+              data: prices,
+              borderColor: '#43e97b',
+              backgroundColor: 'rgba(67, 233, 123, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.1
+            }]
+          },
+          options: this.getChartOptions('Price (USD)', (value) => '$' + this.formatNumber(value))
+        };
+      }
+
+      createVolatilityChart() {
+        const chartData = this.getAggregatedData(this.analyticsData.chartData);
+        const volatilityData = this.calculateVolatility(chartData);
+
+        const labels = volatilityData.map(item => this.formatTimestamp(item.timestamp));
+        const volatility = volatilityData.map(item => item.volatility);
+
+        return {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Price Volatility (%)',
+              data: volatility,
+              borderColor: '#f5576c',
+              backgroundColor: 'rgba(245, 87, 108, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.1
+            }]
+          },
+          options: this.getChartOptions('Volatility (%)', (value) => value.toFixed(2) + '%')
+        };
+      }
+
+      createChangeChart() {
+        const chartData = this.getAggregatedData(this.analyticsData.chartData);
+        const changeData = this.calculatePercentageChange(chartData);
+
+        const labels = changeData.map(item => this.formatTimestamp(item.timestamp));
+        const changes = changeData.map(item => item.change);
+
+        return {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Price Change (%)',
+              data: changes,
+              backgroundColor: changes.map(change =>
+                change >= 0 ? 'rgba(67, 233, 123, 0.7)' : 'rgba(245, 87, 108, 0.7)'
+              ),
+              borderColor: changes.map(change =>
+                change >= 0 ? '#43e97b' : '#f5576c'
+              ),
+              borderWidth: 1
+            }]
+          },
+          options: this.getChartOptions('Change (%)', (value) => value.toFixed(2) + '%')
+        };
+      }
+
+      calculateVolatility(data) {
+        const result = [];
+        const windowSize = this.getWindowSize();
+
+        for (let i = windowSize; i < data.length; i++) {
+          const window = data.slice(i - windowSize, i);
+          const prices = window.map(item => item.price);
+          const mean = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+          const variance = prices.reduce((sum, price) => sum + Math.pow(price - mean, 2), 0) / prices.length;
+          const volatility = (Math.sqrt(variance) / mean) * 100;
+
+          result.push({
+            timestamp: data[i].timestamp,
+            volatility: volatility
+          });
+        }
+
+        return result;
+      }
+
+      calculatePercentageChange(data) {
+        const result = [];
+        const windowSize = this.getWindowSize();
+
+        for (let i = windowSize; i < data.length; i++) {
+          const currentPrice = data[i].price;
+          const previousPrice = data[i - windowSize].price;
+          const change = previousPrice > 0 ? ((currentPrice - previousPrice) / previousPrice) * 100 : 0;
+
+          result.push({
+            timestamp: data[i].timestamp,
+            change: change
+          });
+        }
+
+        return result;
+      }
+
+      getWindowSize() {
+        switch (this.currentTimeframe) {
+          case '10min': return 1;
+          case '1hour': return 6;
+          case '1day': return 144; // 24 hours * 6 (10-min intervals)
+          case '1week': return 1008; // 7 days * 24 hours * 6
+          default: return 6;
+        }
+      }
+
+      getAggregatedData(rawData) {
+        // For now, return the raw data (reverse to show chronological order)
+        // In the future, this could aggregate data based on timeframe
+        return [...rawData].reverse();
+      }
+
+      formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        switch (this.currentTimeframe) {
+          case '10min':
+          case '1hour':
+            return date.toLocaleTimeString();
+          case '1day':
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          case '1week':
+            return date.toLocaleDateString();
+          default:
+            return date.toLocaleString();
+        }
+      }
+
+      getChartOptions(yAxisLabel, tooltipFormatter) {
+        return {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: 'rgba(255, 255, 255, 0.8)'
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(45, 45, 68, 0.9)',
+              titleColor: 'white',
+              bodyColor: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              borderWidth: 1
+            }
+          },
+          scales: {
+            x: {
+              display: true,
+              title: {
+                display: true,
+                text: 'Time',
+                color: 'rgba(255, 255, 255, 0.8)'
+              },
+              ticks: {
+                maxTicksLimit: 10,
+                color: 'rgba(255, 255, 255, 0.6)'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            },
+            y: {
+              display: true,
+              title: {
+                display: true,
+                text: yAxisLabel,
+                color: 'rgba(255, 255, 255, 0.8)'
+              },
+              ticks: {
+                callback: tooltipFormatter,
+                color: 'rgba(255, 255, 255, 0.6)'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          }
+        };
+      }
+
+      formatNumber(num) {
+        if (num === null || num === undefined) return 'N/A';
+        return Number(num).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 8
+        });
+      }
+
+      formatLargeNumber(num) {
+        if (num === null || num === undefined) return 'N/A';
+        if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+        if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+        if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+        if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+        return this.formatNumber(num);
+      }
+
+      showError(message) {
+        const content = document.getElementById('analyticsContent');
+        content.innerHTML = `
+                    <div class="error">
+                        ❌ ${message}
+                    </div>
+                `;
+
+        const header = document.getElementById('cryptoHeader');
+        header.innerHTML = `
+                    <div class="crypto-title">Error Loading Analytics</div>
+                `;
+      }
+    }
+
+    // Initialize analytics when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new CryptoAnalytics();
+    });
+  </script>
+</body>
+
+</html>

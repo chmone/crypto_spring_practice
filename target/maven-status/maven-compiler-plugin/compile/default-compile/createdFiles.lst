@@ -1,0 +1,14 @@
+com\cryptoapp\service\CryptoService.class
+com\cryptoapp\CryptoBackendApplication.class
+com\cryptoapp\controller\CryptoController.class
+com\cryptoapp\model\CryptoCurrency.class
+com\cryptoapp\repository\CryptoCurrencyRepository.class
+com\cryptoapp\service\CoinMarketCapApiService.class
+com\cryptoapp\model\CoinMarketCapResponse$Status.class
+com\cryptoapp\component\CryptoValidator.class
+com\cryptoapp\config\CryptoConfig$CryptoApiClient.class
+com\cryptoapp\model\CoinMarketCapResponse$CoinMarketCapCrypto.class
+com\cryptoapp\model\CoinMarketCapResponse$Quote.class
+com\cryptoapp\config\CryptoConfig.class
+com\cryptoapp\service\CryptoService$1.class
+com\cryptoapp\model\CoinMarketCapResponse.class

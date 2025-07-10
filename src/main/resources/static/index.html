@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🚀 Crypto Backend - Live Cryptocurrency Data</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1><i class="fas fa-rocket"></i> Crypto Backend</h1>
+        <p>Live cryptocurrency data powered by Spring Boot + CoinMarketCap + Supabase</p>
+        <div class="status-indicators">
+          <div class="status-item" id="api-status">
+            <i class="fas fa-server"></i>
+            <span>API: <span id="api-status-text">Checking...</span></span>
+          </div>
+          <div class="status-item" id="db-status">
+            <i class="fas fa-database"></i>
+            <span>DB: <span id="db-status-text">Checking...</span></span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Controls -->
+    <section class="controls">
+      <div class="control-group">
+        <button class="btn btn-primary" onclick="loadPopularCryptos()">
+          <i class="fas fa-chart-line"></i> Load Top Cryptos
+        </button>
+        <button class="btn btn-secondary" onclick="syncWithAPI()">
+          <i class="fas fa-sync-alt"></i> Sync with API
+        </button>
+        <button class="btn btn-info" onclick="checkHealth()">
+          <i class="fas fa-heartbeat"></i> Health Check
+        </button>
+      </div>
+
+      <div class="search-group">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search cryptocurrencies..." onkeyup="searchCryptos(event)">
+          <i class="fas fa-search"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Loading Indicator -->
+      <div class="loading" id="loading" style="display: none;">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Loading cryptocurrency data...</span>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-message" id="errorMessage" style="display: none;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span id="errorText"></span>
+      </div>
+
+      <!-- Crypto Grid -->
+      <div class="crypto-grid" id="cryptoGrid">
+        <!-- Crypto cards will be populated here -->
+      </div>
+
+      <!-- Portfolio Calculator -->
+      <section class="portfolio-section">
+        <h2><i class="fas fa-wallet"></i> Portfolio Calculator</h2>
+        <div class="portfolio-controls">
+          <input type="text" id="portfolioInput" placeholder="Enter symbols (e.g., BTC,ETH,ADA)"
+            onkeyup="calculatePortfolio(event)">
+          <button class="btn btn-success" onclick="calculatePortfolio()">
+            <i class="fas fa-calculator"></i> Calculate Value
+          </button>
+        </div>
+        <div class="portfolio-result" id="portfolioResult" style="display: none;">
+          <h3>Portfolio Value: <span id="portfolioValue">$0.00</span></h3>
+          <div id="portfolioBreakdown"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>
+        Built with ❤️ using
+        <strong>Spring Boot</strong> +
+        <strong>CoinMarketCap API</strong> +
+        <strong>Supabase</strong>
+      </p>
+      <p><small>Learning project demonstrating full-stack development with real APIs</small></p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
